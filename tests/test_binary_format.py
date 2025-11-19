@@ -1,7 +1,12 @@
 ﻿"""Test binary format compatibility with C++."""
+import sys
+import os
+
+# Add parent directory to path to import pybbhash
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import unittest
 import tempfile
-import os
 import struct
 from pybbhash.boophf import mphf
 

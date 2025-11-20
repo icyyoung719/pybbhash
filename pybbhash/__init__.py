@@ -1,4 +1,4 @@
-﻿"""pybbhash - a minimal single-threaded port of BooPHF (BBHash) in Python.
+﻿"""pybbhash - Python implementation of BBHash minimal perfect hash function.
 
 This package implements a simplified, single-threaded minimal perfect hash builder
 in pure Python. It's intended as a reference/portable implementation, not a high-performance
@@ -17,8 +17,18 @@ Usage example:
 
 """
 
-from .bitvector import bitvector
-from .hashfunctors import SingleHashFunctor, XorshiftHashFunctors
-from .boophf import mphf
+__version__ = "0.1.0"
+__author__ = "pybbhash contributors"
+__license__ = "MIT"
 
-__all__ = ["bitvector", "SingleHashFunctor", "XorshiftHashFunctors", "mphf"]
+from .bitvector import bitvector
+from .boophf import mphf
+from .hashfunctors import XorshiftHashFunctors, SingleHashFunctor
+
+__all__ = [
+    "bitvector",
+    "mphf",
+    "XorshiftHashFunctors",
+    "SingleHashFunctor",
+    "__version__",
+]

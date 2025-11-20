@@ -8,9 +8,13 @@ from typing import List
 WORDSZ = 64
 
 
-def popcount64(x: int) -> int:
-    # Python's bit_count works for arbitrary ints (Python 3.8+ has int.bit_count)
-    return x.bit_count()
+if hasattr(int, "bit_count"):      # Python ≥ 3.10
+    def popcount64(x: int) -> int:
+        return x.bit_count()
+else:                              # Python < 3.10 fallback
+    def popcount64(x: int) -> int:
+        x &= (1 << 64) - 1         # Mask to 64 bits to match popcount64 semantics
+        return bin(x).count("1")
 
 
 class bitvector:

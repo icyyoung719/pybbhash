@@ -5,6 +5,11 @@
 
 **pybbhash** is a Python implementation of the BBHash (BooPHF) minimal perfect hash function (MPHF) algorithm. It provides an efficient way to create bijective mappings from a set of keys to consecutive integers [0, n-1].
 
+## 🔗 Related Projects
+
+- [BBHash (C++)](https://github.com/rizkg/BBHash) - Original C++ implementation, works on Linux
+- [BBHash(Cross-Platform)](https://github.com/icyyoung719/BBHash) - Cross-platform C++ port by [@icyyoung719](https://github.com/icyyoung719), works on Windows/Linux, x86/x64. Binary compatible with pybbhash.
+
 ## 🌟 Features
 
 - ✅ **Minimal Perfect Hash Function**: Maps n keys to exactly n consecutive integers with no collisions
@@ -186,12 +191,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - GitHub: [@icyyoung719](https://github.com/icyyoung719)
 - Issues: [GitHub Issues](https://github.com/icyyoung719/pybbhash/issues)
-
-## 🔗 Related Projects
-
-- [BBHash (C++)](https://github.com/rizkg/BBHash) - Original C++ implementation
-- [BooPHF](https://github.com/rizkg/BBHash) - C++ BooPHF implementation
-
----
-
-**Made with ❤️ by the pybbhash contributors**

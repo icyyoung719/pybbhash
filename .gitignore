@@ -62,7 +62,6 @@ env/
 # Project specific
 *.mphf
 *.bin
-README.old.md
 
 # Jupyter Notebook
 .ipynb_checkpoints

@@ -1,0 +1,81 @@
+﻿[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pybbhash"
+version = "0.1.0"
+description = "A Python implementation of the BBHash minimal perfect hash function algorithm"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "pybbhash contributors"},
+]
+maintainers = [
+    {name = "pybbhash contributors"},
+]
+keywords = [
+    "hash",
+    "perfect-hash",
+    "minimal-perfect-hash",
+    "mphf",
+    "bbhash",
+    "boomphf",
+    "algorithm",
+    "data-structures",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.950",
+]
+
+[project.urls]
+Homepage = "https://github.com/icyyoung719/pybbhash"
+Documentation = "https://github.com/icyyoung719/pybbhash#readme"
+Repository = "https://github.com/icyyoung719/pybbhash"
+Issues = "https://github.com/icyyoung719/pybbhash/issues"
+Changelog = "https://github.com/icyyoung719/pybbhash/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+packages = ["pybbhash"]
+
+[tool.setuptools.package-data]
+pybbhash = ["py.typed"]
+
+[tool.black]
+line-length = 100
+target-version = ['py37', 'py38', 'py39', 'py310', 'py311']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+
+[tool.mypy]
+python_version = "3.7"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false

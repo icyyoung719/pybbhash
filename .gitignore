@@ -34,6 +34,7 @@ share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+*.exe
 MANIFEST
 
 # PyInstaller
@@ -58,6 +59,7 @@ venv/
 ENV/
 env/
 .venv
+.venv_test/
 
 # Project specific
 *.mphf

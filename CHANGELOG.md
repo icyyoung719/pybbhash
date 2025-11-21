@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Features
 - Pure Python implementation with no external dependencies
 - Cross-platform compatibility (Windows, Linux, macOS)
-- Python 3.7+ support
+- Python 3.8+ support
 - O(1) lookup time for constructed hash functions
 - Space-efficient storage with configurable gamma parameter
 

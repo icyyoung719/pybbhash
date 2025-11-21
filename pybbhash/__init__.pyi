@@ -30,7 +30,7 @@ class mphf:
     _lastbitsetrank: int
     _final_hash: Dict[int, int]
     _built: bool
-    
+
     def __init__(
         self,
         n: int = 0,
@@ -39,9 +39,8 @@ class mphf:
         gamma: float = 2.0,
         writeEach: bool = False,
         progress: bool = False,
-        perc_elem_loaded: float = 0.03
+        perc_elem_loaded: float = 0.03,
     ) -> None: ...
-    
     def lookup(self, elem: int) -> int: ...
     def nbKeys(self) -> int: ...
     def save(self, path: str) -> None: ...

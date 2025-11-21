@@ -4,6 +4,7 @@ This provides a SingleHashFunctor (wrapper around a simple hash64) and
 an Xorshift-based multi-hasher that yields multiple pseudo-random hashes
 from two seeds (h0 and h1).
 """
+
 from typing import List
 
 
@@ -26,24 +27,33 @@ class HashFunctors:
         hashv ^= (k * (hashv >> 3)) & 0xFFFFFFFFFFFFFFFF
         hashv ^= (~((hashv << 11) + (k ^ (hashv >> 5)))) & 0xFFFFFFFFFFFFFFFF
         hashv = (~hashv) + ((hashv << 21) & 0xFFFFFFFFFFFFFFFF)
-        hashv ^= (hashv >> 24)
+        hashv ^= hashv >> 24
         hashv = (hashv + (hashv << 3) + (hashv << 8)) & 0xFFFFFFFFFFFFFFFF
-        hashv ^= (hashv >> 14)
+        hashv ^= hashv >> 14
         hashv = (hashv + (hashv << 2) + (hashv << 4)) & 0xFFFFFFFFFFFFFFFF
-        hashv ^= (hashv >> 28)
+        hashv ^= hashv >> 28
         hashv = (hashv + (hashv << 31)) & 0xFFFFFFFFFFFFFFFF
         return hashv
 
     def generate_hash_seed(self):
         rbase = [
-            0xAAAAAAAA55555555, 0x33333333CCCCCCCC, 0x6666666699999999, 0xB5B5B5B54B4B4B4B,
-            0xAA55AA5555335533, 0x33CC33CCCC66CC66, 0x6699669999B599B5, 0xB54BB54B4BAA4BAA,
-            0xAA33AA3355CC55CC, 0x33663366CC99CC99
+            0xAAAAAAAA55555555,
+            0x33333333CCCCCCCC,
+            0x6666666699999999,
+            0xB5B5B5B54B4B4B4B,
+            0xAA55AA5555335533,
+            0x33CC33CCCC66CC66,
+            0x6699669999B599B5,
+            0xB54BB54B4BAA4BAA,
+            0xAA33AA3355CC55CC,
+            0x33663366CC99CC99,
         ]
         for i in range(self.MAXNBFUNC):
             self._seed_tab[i] = rbase[i]
         for i in range(self.MAXNBFUNC):
-            self._seed_tab[i] = (self._seed_tab[i] * self._seed_tab[(i + 3) % self.MAXNBFUNC] + self._user_seed) & 0xFFFFFFFFFFFFFFFF
+            self._seed_tab[i] = (
+                self._seed_tab[i] * self._seed_tab[(i + 3) % self.MAXNBFUNC] + self._user_seed
+            ) & 0xFFFFFFFFFFFFFFFF
 
     def hashWithSeed(self, key: int, seed: int) -> int:
         return self._hash64(key, seed)

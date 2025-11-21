@@ -2,6 +2,7 @@
 
 This is a simplified port intended for correctness and clarity rather than speed.
 """
+
 from typing import Iterable, Dict, List, Tuple
 from .bitvector import bitvector
 from .hashfunctors import XorshiftHashFunctors, SingleHashFunctor
@@ -28,7 +29,16 @@ class level:
 
 
 class mphf:
-    def __init__(self, n: int = 0, input_range: Iterable[int] = None, num_thread: int = 1, gamma: float = 2.0, writeEach: bool = False, progress: bool = False, perc_elem_loaded: float = 0.03):
+    def __init__(
+        self,
+        n: int = 0,
+        input_range: Iterable[int] = None,
+        num_thread: int = 1,
+        gamma: float = 2.0,
+        writeEach: bool = False,
+        progress: bool = False,
+        perc_elem_loaded: float = 0.03,
+    ):
         # single-threaded implementation: ignore num_thread
         self._gamma = gamma
         self._hash_domain = int(math.ceil(float(n) * gamma)) if n > 0 else 0
@@ -71,12 +81,21 @@ class mphf:
         self._cptTotalProcessed = 0
         if self._fastmode:
             # pre-allocate setLevelFastmode size
-            self.setLevelFastmode = [0] * int(self._percent_elem_loaded_for_fastMode * float(self._nelem))
+            self.setLevelFastmode = [0] * int(
+                self._percent_elem_loaded_for_fastMode * float(self._nelem)
+            )
         else:
             self.setLevelFastmode = []
 
-        self._proba_collision = 1.0 - pow(((self._gamma * float(self._nelem) - 1) / (self._gamma * float(self._nelem))), max(1, self._nelem - 1))
-        sum_geom = self._gamma * (1.0 + self._proba_collision / (1.0 - self._proba_collision)) if self._proba_collision < 1.0 else self._gamma
+        self._proba_collision = 1.0 - pow(
+            ((self._gamma * float(self._nelem) - 1) / (self._gamma * float(self._nelem))),
+            max(1, self._nelem - 1),
+        )
+        sum_geom = (
+            self._gamma * (1.0 + self._proba_collision / (1.0 - self._proba_collision))
+            if self._proba_collision < 1.0
+            else self._gamma
+        )
 
         self._nb_levels = 25
         self._levels = [level() for _ in range(self._nb_levels)]
@@ -175,6 +194,7 @@ class mphf:
     def save(self, fpath: str):
         """Save mphf to binary file compatible with C++ format."""
         import struct
+
         with open(fpath, "wb") as os:
             # Write _gamma (double, 8 bytes)
             os.write(struct.pack("<d", self._gamma))
@@ -184,15 +204,15 @@ class mphf:
             os.write(struct.pack("<Q", self._lastbitsetrank))
             # Write _nelem (uint64_t, 8 bytes)
             os.write(struct.pack("<Q", self._nelem))
-            
+
             # Save each level's bitset
             for ii in range(self._nb_levels):
                 self._levels[ii].bitset.save(os)
-            
+
             # Save final hash
             final_hash_size = len(self._final_hash)
             os.write(struct.pack("<Q", final_hash_size))
-            
+
             for key, value in self._final_hash.items():
                 # Write key (int/uint64_t, 8 bytes)
                 os.write(struct.pack("<Q", key))
@@ -203,8 +223,9 @@ class mphf:
     def load(fpath: str):
         """Load mphf from binary file compatible with C++ format."""
         import struct
+
         mph = mphf()
-        
+
         with open(fpath, "rb") as is_stream:
             # Read _gamma (double)
             mph._gamma = struct.unpack("<d", is_stream.read(8))[0]
@@ -214,19 +235,22 @@ class mphf:
             mph._lastbitsetrank = struct.unpack("<Q", is_stream.read(8))[0]
             # Read _nelem (uint64_t)
             mph._nelem = struct.unpack("<Q", is_stream.read(8))[0]
-            
+
             # Load each level's bitset
             mph._levels = []
             for ii in range(mph._nb_levels):
                 lv = level()
                 lv.bitset = bitvector.load(is_stream)
                 mph._levels.append(lv)
-            
+
             # Mini setup: recompute size of each level (same as C++)
-            mph._proba_collision = 1.0 - pow(((mph._gamma * float(mph._nelem) - 1) / (mph._gamma * float(mph._nelem))), max(1, mph._nelem - 1))
+            mph._proba_collision = 1.0 - pow(
+                ((mph._gamma * float(mph._nelem) - 1) / (mph._gamma * float(mph._nelem))),
+                max(1, mph._nelem - 1),
+            )
             previous_idx = 0
             mph._hash_domain = int(math.ceil(float(mph._nelem) * mph._gamma))
-            
+
             for ii in range(mph._nb_levels):
                 mph._levels[ii].idx_begin = previous_idx
                 hd = int(math.ceil(mph._hash_domain * pow(mph._proba_collision, ii)))
@@ -235,23 +259,23 @@ class mphf:
                     hd = 64
                 mph._levels[ii].hash_domain = hd
                 previous_idx += hd
-            
+
             # Restore final hash
             mph._final_hash = {}
             final_hash_size = struct.unpack("<Q", is_stream.read(8))[0]
-            
+
             for ii in range(final_hash_size):
                 # Read key (uint64_t)
                 key = struct.unpack("<Q", is_stream.read(8))[0]
                 # Read value (uint64_t)
                 value = struct.unpack("<Q", is_stream.read(8))[0]
                 mph._final_hash[key] = value
-            
+
             mph._built = True
             mph._hasher = XorshiftHashFunctors(SingleHashFunctor())
             mph._num_thread = 1
             mph._fastmode = False
             mph._withprogress = False
             mph._writeEachLevel = False
-        
+
         return mph

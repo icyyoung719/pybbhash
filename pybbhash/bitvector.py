@@ -3,17 +3,21 @@
 This is a minimal port of the C++ `bitVector` used by BooPHF. It's not optimized
 for memory or speed; it aims to preserve the semantics needed by the MPH builder.
 """
+
 from typing import List
 
 WORDSZ = 64
 
 
-if hasattr(int, "bit_count"):      # Python ≥ 3.10
+if hasattr(int, "bit_count"):  # Python ≥ 3.10
+
     def popcount64(x: int) -> int:
         return x.bit_count()
-else:                              # Python < 3.10 fallback
+
+else:  # Python < 3.10 fallback
+
     def popcount64(x: int) -> int:
-        x &= (1 << 64) - 1         # Mask to 64 bits to match popcount64 semantics
+        x &= (1 << 64) - 1  # Mask to 64 bits to match popcount64 semantics
         return bin(x).count("1")
 
 
@@ -58,7 +62,7 @@ class bitvector:
 
     def set(self, pos: int):
         idx = pos >> 6
-        self._bitArray[idx] |= (1 << (pos & 63))
+        self._bitArray[idx] |= 1 << (pos & 63)
 
     def reset(self, pos: int):
         idx = pos >> 6
@@ -101,6 +105,7 @@ class bitvector:
         """Save to binary stream (file opened in 'wb' mode).
         Compatible with C++ bitVector::save format."""
         import struct
+
         # Write _size (uint64_t)
         os.write(struct.pack("<Q", self._size))
         # Write _nchar (uint64_t)
@@ -120,6 +125,7 @@ class bitvector:
         Compatible with C++ bitVector::load format.
         Returns a new bitvector instance."""
         import struct
+
         bv = bitvector(0)
         # Read _size (uint64_t)
         data = is_stream.read(8)

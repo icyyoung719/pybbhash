@@ -27,28 +27,28 @@ class TestBase(unittest.TestCase):
     def _validate_mphf_complete_mapping(self, mph, keys, test_name=""):
         """Helper: validate that mph maps all keys to a complete 0..N-1 permutation."""
         print(f"\n[{test_name}] Validating complete mapping for {len(keys)} keys...")
-        
+
         # collect all mapped indices
         mapped_keys = []
         bad_keys = []
-        
+
         for k in keys:
             idx = mph.lookup(k)
             if not (0 <= idx < len(keys)):
                 bad_keys.append((k, idx))
             mapped_keys.append(idx)
-        
+
         # check for bad mappings
         if bad_keys:
             print(f"  ERROR: {len(bad_keys)} keys mapped outside [0, {len(keys)-1}]:")
             for k, idx in bad_keys[:5]:
                 print(f"    key {k} -> {idx}")
             self.fail(f"{len(bad_keys)} keys mapped out of range")
-        
+
         # check that all indices form a complete permutation
         sorted_indices = sorted(mapped_keys)
         expected = list(range(len(keys)))
-        
+
         if sorted_indices != expected:
             missing = set(expected) - set(mapped_keys)
             duplicates = [idx for idx in set(mapped_keys) if mapped_keys.count(idx) > 1]
@@ -58,7 +58,7 @@ class TestBase(unittest.TestCase):
             if duplicates:
                 print(f"    Duplicate indices: {duplicates[:10]}")
             self.fail("Mapping does not form a complete 0..N-1 permutation")
-        
+
         print(f"  ✓ All {len(keys)} keys map to valid 0..{len(keys)-1} permutation")
         return True
 
@@ -81,14 +81,14 @@ class TestBase(unittest.TestCase):
         print(f"\nSaving mphf to {self.save_path}...")
         self.m.save(self.save_path)
         self.assertTrue(os.path.exists(self.save_path), "Save file not created")
-        
+
         print(f"Loading mphf from {self.save_path}...")
         loaded = mphf.load(self.save_path)
-        
+
         # verify metadata
         print(f"  Loaded nbKeys: {loaded.nbKeys()} (expected {self.m.nbKeys()})")
         self.assertEqual(self.m.nbKeys(), loaded.nbKeys(), "nbKeys mismatch after load")
-        
+
         # verify all lookups match original
         print(f"  Comparing lookups for all {len(self.keys)} keys...")
         mismatches = []
@@ -97,15 +97,15 @@ class TestBase(unittest.TestCase):
             loaded_idx = loaded.lookup(k)
             if orig_idx != loaded_idx:
                 mismatches.append((k, orig_idx, loaded_idx))
-        
+
         if mismatches:
             print(f"  ERROR: {len(mismatches)} lookup mismatches:")
             for k, orig, loaded_val in mismatches[:5]:
                 print(f"    key {k}: original={orig}, loaded={loaded_val}")
             self.fail(f"{len(mismatches)} lookups differ after load")
-        
+
         print(f"  ✓ All lookups match original")
-        
+
         # validate loaded mph passes complete mapping test
         self._validate_mphf_complete_mapping(loaded, self.keys, "LOADED")
 
@@ -114,21 +114,21 @@ class TestBase(unittest.TestCase):
         print(f"\nTesting metadata consistency...")
         self.m.save(self.save_path)
         loaded = mphf.load(self.save_path)
-        
+
         print(f"  nbKeys: {loaded.nbKeys()} == {self.m.nbKeys()}")
         self.assertEqual(self.m.nbKeys(), loaded.nbKeys())
-        
+
         print(f"  _lastbitsetrank: {loaded._lastbitsetrank} == {self.m._lastbitsetrank}")
         self.assertEqual(self.m._lastbitsetrank, loaded._lastbitsetrank)
-        
+
         print(f"  _nb_levels: {loaded._nb_levels} == {self.m._nb_levels}")
         self.assertEqual(self.m._nb_levels, loaded._nb_levels)
-        
+
         print(f"  _gamma: {loaded._gamma} == {self.m._gamma}")
         self.assertAlmostEqual(self.m._gamma, loaded._gamma, places=5)
-        
+
         print(f"  ✓ All metadata consistent")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

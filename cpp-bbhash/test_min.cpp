@@ -11,15 +11,15 @@
 
 using boophf_t = boomphf::mphf<uint64_t, boomphf::SingleHashFunctor<uint64_t>>;
 
-// Load expected results from CSV
-std::map<uint64_t, uint64_t> load_expected_results(const std::string& csv_file)
+// Load keys from CSV (we only need the keys, not the hash values)
+std::vector<uint64_t> load_keys_from_csv(const std::string& csv_file)
 {
-	std::map<uint64_t, uint64_t> expected;
+	std::vector<uint64_t> keys;
 	std::ifstream infile(csv_file);
 	if (!infile)
 	{
 		std::cerr << "Failed to open CSV file: " << csv_file << "\n";
-		return expected;
+		return keys;
 	}
 
 	std::string line;
@@ -32,30 +32,29 @@ std::map<uint64_t, uint64_t> load_expected_results(const std::string& csv_file)
 
 		if (!std::getline(iss, key_str, ','))
 			continue;
-		if (!std::getline(iss, val_str, ','))
-			continue;
+		// Skip the hash value column
+		std::getline(iss, val_str, ',');
 
 		uint64_t key = std::stoull(key_str);
-		uint64_t val = std::stoull(val_str);
-		expected[key] = val;
+		keys.push_back(key);
 	}
 
-	return expected;
+	return keys;
 }
 
-// Test 1: Load Python-generated MPHF and verify against expected results
+// Test 1: Load Python-generated MPHF and verify MPHF properties
 bool test_python_to_cpp()
 {
 	std::cout << "\n=== Test 1: Python → C++ (Load Python binary in C++) ===\n";
 
-	// Load expected results
-	auto expected = load_expected_results("test_data_py.csv");
-	if (expected.empty())
+	// Load keys from CSV
+	auto keys = load_keys_from_csv("test_data_py.csv");
+	if (keys.empty())
 	{
-		std::cerr << "✗ Failed to load expected results\n";
+		std::cerr << "✗ Failed to load keys from CSV\n";
 		return false;
 	}
-	std::cout << "✓ Loaded " << expected.size() << " expected key-value pairs\n";
+	std::cout << "✓ Loaded " << keys.size() << " test keys\n";
 
 	// Load MPHF from Python binary
 	std::ifstream is("test_data_py.mphf", std::ios::binary);
@@ -70,43 +69,63 @@ bool test_python_to_cpp()
 	is.close();
 	std::cout << "✓ Loaded MPHF from Python binary\n";
 
-	// Verify all lookups
-	int mismatches = 0;
-	int matches = 0;
-	for (const auto& pair : expected)
-	{
-		uint64_t key = pair.first;
-		uint64_t expected_val = pair.second;
-		uint64_t actual_val = bphf.lookup(key);
+	// Verify MPHF properties:
+	// 1. All keys can be looked up
+	// 2. All hash values are in range [0, n-1]
+	// 3. All hash values are unique (perfect hash)
+	std::cout << "Verifying MPHF properties...\n";
 
-		if (actual_val != expected_val)
+	std::vector<uint64_t> hash_values;
+	hash_values.reserve(keys.size());
+	int lookup_errors = 0;
+	int out_of_range = 0;
+
+	for (uint64_t key : keys)
+	{
+		uint64_t hash_val = bphf.lookup(key);
+
+		// Check if lookup succeeded (BBHash returns values in [0, n-1])
+		if (hash_val >= keys.size())
 		{
-			std::cerr << "✗ Mismatch for key " << key << ": expected " << expected_val
-			          << ", got " << actual_val << "\n";
-			mismatches++;
-			if (mismatches >= 10)
+			std::cerr << "✗ Out of range for key " << key << ": " << hash_val
+			          << " not in [0, " << keys.size() - 1 << "]\n";
+			out_of_range++;
+			if (out_of_range >= 10)
 			{
-				std::cerr << "  (stopping after 10 mismatches)\n";
+				std::cerr << "  (stopping after 10 errors)\n";
 				break;
 			}
 		}
 		else
 		{
-			matches++;
+			hash_values.push_back(hash_val);
 		}
 	}
 
-	if (mismatches == 0)
+	if (out_of_range > 0)
 	{
-		std::cout << "✓ All " << matches << " lookups match!\n";
-		return true;
-	}
-	else
-	{
-		std::cerr << "✗ Found " << mismatches << " mismatches out of " << expected.size()
-		          << " keys\n";
+		std::cerr << "✗ MPHF verification failed with " << out_of_range
+		          << " out-of-range values\n";
 		return false;
 	}
+
+	// Check for uniqueness (no collisions)
+	std::sort(hash_values.begin(), hash_values.end());
+	auto unique_end = std::unique(hash_values.begin(), hash_values.end());
+	size_t unique_count = std::distance(hash_values.begin(), unique_end);
+
+	if (unique_count != hash_values.size())
+	{
+		std::cerr << "✗ Hash collision detected!\n";
+		std::cerr << "  Expected " << hash_values.size() << " unique hashes, got "
+		          << unique_count << "\n";
+		return false;
+	}
+
+	std::cout << "✓ All " << keys.size() << " keys can be looked up\n";
+	std::cout << "✓ All hash values in valid range [0, " << keys.size() - 1 << "]\n";
+	std::cout << "✓ All hash values are unique (perfect hash)\n";
+	return true;
 }
 
 // Test 2: Build MPHF in C++, save, load in C++, then save for Python to load

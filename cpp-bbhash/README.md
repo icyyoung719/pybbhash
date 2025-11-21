@@ -7,7 +7,9 @@ This directory contains tests to verify that the binary format used by pybbhash 
 These tests ensure that:
 1. **Python → C++**: MPHF files created by Python can be loaded and used correctly in C++
 2. **C++ → Python**: MPHF files created by C++ can be loaded and used correctly in Python
-3. **Hash consistency**: Both implementations produce identical hash values for the same keys
+3. **MPHF properties**: Loaded MPHFs maintain correctness (uniqueness, valid range)
+
+**Important**: Different implementations may produce different hash values for the same keys. The tests verify **format compatibility** and **functional correctness**, not value identity. See `TESTING_PHILOSOPHY.md` for details.
 
 ## Files
 

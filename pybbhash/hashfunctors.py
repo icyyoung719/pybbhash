@@ -23,16 +23,15 @@ class HashFunctors:
         # port of the small non-cryptographic hash from the C++ code
         hashv = seed & 0xFFFFFFFFFFFFFFFF
         k = key & 0xFFFFFFFFFFFFFFFF
-        hashv ^= (hashv << 7) & 0xFFFFFFFFFFFFFFFF
-        hashv ^= (k * (hashv >> 3)) & 0xFFFFFFFFFFFFFFFF
-        hashv ^= (~((hashv << 11) + (k ^ (hashv >> 5)))) & 0xFFFFFFFFFFFFFFFF
-        hashv = (~hashv) + ((hashv << 21) & 0xFFFFFFFFFFFFFFFF)
-        hashv ^= hashv >> 24
-        hashv = (hashv + (hashv << 3) + (hashv << 8)) & 0xFFFFFFFFFFFFFFFF
-        hashv ^= hashv >> 14
-        hashv = (hashv + (hashv << 2) + (hashv << 4)) & 0xFFFFFFFFFFFFFFFF
-        hashv ^= hashv >> 28
-        hashv = (hashv + (hashv << 31)) & 0xFFFFFFFFFFFFFFFF
+        # This single line matches: hash ^= (hash << 7) ^ key * (hash >> 3) ^ (~((hash << 11) + (key ^ (hash >> 5))));
+        hashv = (hashv ^ ((hashv << 7) ^ (k * (hashv >> 3)) ^ (~((hashv << 11) + (k ^ (hashv >> 5)))))) & 0xFFFFFFFFFFFFFFFF
+        hashv = ((~hashv) + ((hashv << 21) & 0xFFFFFFFFFFFFFFFF)) & 0xFFFFFFFFFFFFFFFF
+        hashv = (hashv ^ (hashv >> 24)) & 0xFFFFFFFFFFFFFFFF
+        hashv = ((hashv + (hashv << 3) + (hashv << 8)) & 0xFFFFFFFFFFFFFFFF)
+        hashv = (hashv ^ (hashv >> 14)) & 0xFFFFFFFFFFFFFFFF
+        hashv = ((hashv + (hashv << 2) + (hashv << 4)) & 0xFFFFFFFFFFFFFFFF)
+        hashv = (hashv ^ (hashv >> 28)) & 0xFFFFFFFFFFFFFFFF
+        hashv = ((hashv + (hashv << 31)) & 0xFFFFFFFFFFFFFFFF)
         return hashv
 
     def generate_hash_seed(self):

@@ -246,7 +246,7 @@ class mphf:
             # Mini setup: recompute size of each level (same as C++)
             mph._proba_collision = 1.0 - pow(
                 ((mph._gamma * float(mph._nelem) - 1) / (mph._gamma * float(mph._nelem))),
-                max(1, mph._nelem - 1),
+                mph._nelem - 1,
             )
             previous_idx = 0
             mph._hash_domain = int(math.ceil(float(mph._nelem) * mph._gamma))

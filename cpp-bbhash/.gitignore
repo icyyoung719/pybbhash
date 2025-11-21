@@ -1,0 +1,17 @@
+﻿# Compiled executables
+test_min
+test_min.exe
+*.o
+*.obj
+
+# Generated test data
+test_data_py.mphf
+test_data_py.csv
+test_data_cpp.mphf
+test_data_cpp.csv
+
+# MSVC artifacts
+*.pdb
+*.ilk
+*.exp
+*.lib

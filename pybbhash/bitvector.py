@@ -10,12 +10,9 @@ WORDSZ = 64
 
 
 if hasattr(int, "bit_count"):  # Python ≥ 3.10
-
     def popcount64(x: int) -> int:
         return x.bit_count()
-
 else:  # Python < 3.10 fallback
-
     def popcount64(x: int) -> int:
         x &= (1 << 64) - 1  # Mask to 64 bits to match popcount64 semantics
         return bin(x).count("1")

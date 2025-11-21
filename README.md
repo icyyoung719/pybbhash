@@ -148,6 +148,22 @@ python -m pytest tests/test_base.py
 python -m pytest --cov=pybbhash tests/
 ```
 
+### Cross-Language Binary Compatibility Tests
+
+The `cpp-bbhash/` directory contains comprehensive tests to verify binary format compatibility between Python and C++:
+
+```bash
+cd cpp-bbhash
+python run_cross_language_tests.py
+```
+
+These tests verify:
+- ✅ Python-generated binaries can be loaded in C++
+- ✅ C++-generated binaries can be loaded in Python
+- ✅ Hash values match identically across both implementations
+
+See [cpp-bbhash/README.md](cpp-bbhash/README.md) for detailed information about cross-language testing.
+
 ## 🎯 Use Cases
 
 - **Database Indexing**: Create compact indices for static datasets

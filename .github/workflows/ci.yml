@@ -60,8 +60,8 @@ jobs:
 
       - name: Run cross-language tests
         run: |
-          cd cpp-bbhash
-          python run_cross_language_tests.py
+          cd tests/cross_language
+          python run_tests.py
 
   build:
     name: Build and check distribution

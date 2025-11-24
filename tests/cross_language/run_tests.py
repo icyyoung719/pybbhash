@@ -55,10 +55,10 @@ def main():
         # Try to use cl.exe (MSVC) or g++ if available
         compile_cmd = [
             "cl.exe", "/std:c++17", "/EHsc", "/W3",
-            "test_min.cpp", "/Fe:test_min.exe",
-            "/I."
+            "test_compatibility.cpp", "/Fe:test_compatibility.exe",
+            "/I.", "/I.\\cpp_headers"
         ]
-        executable = "test_min.exe"
+        executable = "test_compatibility.exe"
         
         # Check if cl.exe is available
         cl_check = subprocess.run(["where", "cl"], capture_output=True)
@@ -67,16 +67,16 @@ def main():
             print("MSVC not found, trying g++...")
             compile_cmd = [
                 "g++", "-std=c++17", "-O2", "-Wall",
-                "test_min.cpp", "-o", "test_min.exe",
-                "-I."
+                "test_compatibility.cpp", "-o", "test_compatibility.exe",
+                "-I.", "-I./cpp_headers"
             ]
     else:
         compile_cmd = [
             "g++", "-std=c++17", "-O2", "-Wall",
-            "test_min.cpp", "-o", "test_min",
-            "-I."
+            "test_compatibility.cpp", "-o", "test_compatibility",
+            "-I.", "-I./cpp_headers"
         ]
-        executable = "./test_min"
+        executable = "./test_compatibility"
     
     print(f"Compile command: {' '.join(compile_cmd)}")
     compile_result = subprocess.run(compile_cmd, capture_output=True, text=True)
@@ -87,9 +87,9 @@ def main():
         print(compile_result.stderr)
         print("\nNote: You may need to compile manually with your C++ compiler.")
         print("Example for g++:")
-        print("  g++ -std=c++17 -O2 test_min.cpp -o test_min -I.")
+        print("  g++ -std=c++17 -O2 test_compatibility.cpp -o test_compatibility -I. -I./cpp_headers")
         print("Example for MSVC:")
-        print("  cl /std:c++17 /EHsc test_min.cpp /I.")
+        print("  cl /std:c++17 /EHsc test_compatibility.cpp /I. /I.\\cpp_headers")
         return False
     else:
         print("✓ Compilation succeeded")
@@ -97,9 +97,9 @@ def main():
     
     # Step 3: Run C++ test (includes both Python→C++ and C++→Python)
     if platform.system() == "Windows":
-        cpp_cmd = ["test_min.exe"]
+        cpp_cmd = ["test_compatibility.exe"]
     else:
-        cpp_cmd = ["./test_min"]
+        cpp_cmd = ["./test_compatibility"]
     
     results.append(run_command(
         cpp_cmd,

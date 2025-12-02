@@ -132,8 +132,8 @@ bool test_load_python_binary()
 {
 	std::cout << "\n=== Test 2: Load Python Binary (Binary Compatibility Test) ===\n";
 
-	// Load test keys
-	auto keys = load_test_keys("test_keys.csv");
+	// Load test keys (use out/ to avoid polluting directory)
+	auto keys = load_test_keys("out/test_keys.csv");
 	if (keys.empty())
 	{
 		std::cerr << " Failed to load test keys\n";

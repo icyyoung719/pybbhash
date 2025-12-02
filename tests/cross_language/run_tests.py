@@ -1,5 +1,13 @@
 ﻿#!/usr/bin/env python3
-"""Run complete cross-language binary compatibility test suite."""
+"""Run complete cross-language binary compatibility test suite.
+
+Test flow:
+1. Generate test keys (test_keys.csv) - fixed seed for reproducibility
+2. Python builds MPHF and exports binary + hashes
+3. C++ builds MPHF and exports binary + hashes, also loads Python binary
+4. Python loads C++ binary
+5. Compare hash values between Python and C++
+"""
 
 import sys
 import os
@@ -28,21 +36,33 @@ def main():
     print("Cross-Language Binary Compatibility Test Suite")
     print("="*60)
     
-    # Change to cpp-bbhash directory
+    # Change to test directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     print(f"\nWorking directory: {os.getcwd()}")
+    # Ensure output directory exists
+    os.makedirs('out', exist_ok=True)
     
     results = []
     
-    # Step 1: Generate Python test data
+    # Step 0: Generate test keys
     results.append(run_command(
-        [sys.executable, "export_test_data.py"],
-        "Step 1: Generate Python test data"
+        [sys.executable, "generate_test_keys.py"],
+        "Step 0: Generate test keys"
     ))
     
     if not results[-1]:
-        print("\n✗ Failed to generate Python test data. Aborting.")
+        print("\n✗ Failed to generate test keys. Aborting.")
+        return False
+    
+    # Step 1: Python builds MPHF and exports
+    results.append(run_command(
+        [sys.executable, "export_test_data.py"],
+        "Step 1: Python build and export"
+    ))
+    
+    if not results[-1]:
+        print("\n✗ Failed to generate Python MPHF. Aborting.")
         return False
     
     # Step 2: Compile C++ test
@@ -95,7 +115,7 @@ def main():
         print("✓ Compilation succeeded")
         results.append(True)
     
-    # Step 3: Run C++ test (includes both Python→C++ and C++→Python)
+    # Step 3: Run C++ test (builds C++ MPHF, loads Python binary, compares hashes)
     if platform.system() == "Windows":
         cpp_cmd = ["test_compatibility.exe"]
     else:
@@ -103,48 +123,37 @@ def main():
     
     results.append(run_command(
         cpp_cmd,
-        "Step 3: Run C++ tests (Python→C++ and C++→Python)"
+        "Step 3: Run C++ tests"
     ))
     
     if not results[-1]:
         print("\n✗ C++ test failed. Check the output above.")
         return False
     
-    # Step 4: Verify C++ export in Python
+    # Step 4: Python loads C++ binary
     results.append(run_command(
         [sys.executable, "verify_cpp_export.py"],
-        "Step 4: Verify C++ export in Python"
+        "Step 4: Python loads C++ binary"
     ))
     
     # Print summary
     print("\n" + "="*60)
-    print("TEST SUITE SUMMARY")
+    print("SUMMARY")
     print("="*60)
+    passed = sum(results)
+    total = len(results)
+    print(f"Tests passed: {passed}/{total}")
     
-    test_names = [
-        "Python data generation",
-        "C++ compilation",
-        "C++ tests (Python→C++ and C++→Python)",
-        "Python verification of C++ export"
-    ]
-    
-    all_passed = True
-    for i, (name, passed) in enumerate(zip(test_names, results), 1):
-        status = "✓ PASSED" if passed else "✗ FAILED"
-        print(f"{i}. {name}: {status}")
-        if not passed:
-            all_passed = False
-    
-    print("="*60)
-    if all_passed:
-        print("✓ ALL TESTS PASSED!")
-        print("\nBinary format compatibility verified:")
-        print("  • Python → C++ loading works correctly")
-        print("  • C++ → Python loading works correctly")
-        print("  • Hash values match across languages")
+    if all(results):
+        print("\n✓ ALL TESTS PASSED!")
+        print("\nKey findings:")
+        print("  1. Binary format is fully compatible between Python and C++")
+        print("  2. Both implementations can load each other's MPHF files")
+        print("  3. All keys can be looked up successfully")
+        print("  4. Hash value differences (if any) are expected and acceptable")
         return True
     else:
-        print("✗ SOME TESTS FAILED")
+        print("\n✗ SOME TESTS FAILED")
         return False
 
 

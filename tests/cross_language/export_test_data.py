@@ -1,5 +1,10 @@
 ﻿#!/usr/bin/env python3
-"""Export test data and MPHF binary for C++ compatibility testing."""
+"""Export test data and MPHF binary for C++ compatibility testing.
+
+Reads test keys from test_keys.csv, builds MPHF, and exports:
+1. Binary MPHF file (test_data_py.mphf)
+2. Hash results CSV (test_data_py_hashes.csv) - for comparison with C++
+"""
 
 import sys
 import os
@@ -11,30 +16,49 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pybbhash.boophf import mphf
 
 
+def load_test_keys(csv_file):
+    """Load test keys from CSV file."""
+    keys = []
+    with open(csv_file, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            keys.append(int(row['key']))
+    return keys
+
+
 def main():
-    # Generate test keys - simple sequential keys for easy verification
-    test_keys = list(range(1000, 2000))  # 1000 keys from 1000-1999
+    # Ensure out directory exists and load test keys from out/
+    os.makedirs('out', exist_ok=True)
+    # Load test keys from CSV
+    keys_file = os.path.join('out', 'test_keys.csv')
+    if not os.path.exists(keys_file):
+        print(f"[ERROR] {keys_file} not found!")
+        print(f"  Please run: python generate_test_keys.py")
+        return 1
+
+    test_keys = load_test_keys(keys_file)
+    print(f"[OK] Loaded {len(test_keys)} test keys from {keys_file}")
     
-    print(f"Generating MPHF for {len(test_keys)} keys...")
+    print(f"\nBuilding Python MPHF...")
     
     # Build MPHF with gamma=2.0 (same as C++ default)
     mph = mphf(n=len(test_keys), input_range=test_keys, gamma=2.0)
     
-    # Save binary file
-    binary_file = "test_data_py.mphf"
+    # Save binary file into out/
+    binary_file = os.path.join('out', 'test_data_py.mphf')
     mph.save(binary_file)
-    print(f"✓ Saved binary to: {binary_file}")
-    
-    # Save test keys and their hash values to CSV for verification
-    csv_file = "test_data_py.csv"
-    with open(csv_file, 'w', newline='') as f:
+    print(f"[OK] Saved binary to: {binary_file}")
+
+    # Save test keys and their hash values to CSV for comparison with C++ (into out/)
+    hash_csv_file = os.path.join('out', 'test_data_py_hashes.csv')
+    with open(hash_csv_file, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['key', 'hash_value'])
         for key in test_keys:
             hash_val = mph.lookup(key)
             writer.writerow([key, hash_val])
     
-    print(f"✓ Saved test data to: {csv_file}")
+    print(f"[OK] Saved hash results to: {hash_csv_file}")
     
     # Print some statistics
     print(f"\nMPHF Statistics:")
@@ -46,10 +70,12 @@ def main():
     
     # Test a few lookups
     print(f"\nSample lookups:")
-    for key in [1000, 1500, 1999]:
+    for i in [0, len(test_keys)//2, len(test_keys)-1]:
+        key = test_keys[i]
         print(f"  lookup({key}) = {mph.lookup(key)}")
     
-    print(f"\n✓ Export complete!")
+    print(f"\n[OK] Python export complete!")
+    return 0
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 ﻿# Compiled executables
 test_min
+test_compatibility
 *.exe
 *.o
 *.obj
@@ -7,6 +8,7 @@ test_min
 # Generated test data
 *.mphf
 *.csv
+out/
 
 # MSVC artifacts
 *.pdb

@@ -21,10 +21,14 @@
 
 ## 📥 Installation
 
-### From PyPI (coming soon)
+Pybbhash is not yet published on the official PyPI.
+
+You can install it from Test PyPI or directly from source.
+
+### From Test PyPI
 
 ```bash
-pip install pybbhash
+pip install -i https://test.pypi.org/simple/ pybbhash
 ```
 
 ### From Source
@@ -198,7 +202,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Original BBHash/BooPHF algorithm by Antoine Limasset et al.
 - C++ implementation: [BBHash](https://github.com/rizkg/BBHash)
@@ -207,4 +211,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📬 Contact
 
 - GitHub: [@icyyoung719](https://github.com/icyyoung719)
-- Issues: [GitHub Issues](https://github.com/icyyoung719/pybbhash/issues)

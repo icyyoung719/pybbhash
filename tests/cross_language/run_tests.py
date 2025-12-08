@@ -72,36 +72,26 @@ def main():
     print("Step 2: Compile C++ test")
     print(f"{'='*60}")
 
-    # Determine compiler based on platform
-    if platform.system() == "Windows":
-        # Check if cl.exe is available
-        cl_check = subprocess.run(["where", "cl"], capture_output=True)
-        if cl_check.returncode == 0:
-            # Use MSVC and place outputs under out/
-            compile_cmd = [
-                "cl.exe", "/std:c++17", "/EHsc", "/W3",
-                "test_compatibility.cpp",
-                f"/Fe:{os.path.join(out_dir, 'test_compatibility.exe')}",
-                f"/Fo:{os.path.join(out_dir, 'test_compatibility.obj')}",
-                "/I.", "/I.\\cpp_headers"
-            ]
-            executable = os.path.join(out_dir, 'test_compatibility.exe')
-        else:
-            # Fall back to g++ and place exe in out/
-            print("MSVC not found, trying g++...")
-            compile_cmd = [
-                "g++", "-std=c++17", "-O2", "-Wall",
-                "test_compatibility.cpp", "-o", os.path.join(out_dir, 'test_compatibility.exe'),
-                "-I.", "-I./cpp_headers"
-            ]
-            executable = os.path.join(out_dir, 'test_compatibility.exe')
+    # Check if g++ is available
+    gpp_check = subprocess.run(["g++", "--version"], capture_output=True)
+    if gpp_check.returncode != 0 and platform.system() == "Windows":
+        # Fall back to MSVC on Windows
+        print("g++ not found, trying MSVC...")
+        compile_cmd = [
+            "cl.exe", "/std:c++17", "/EHsc", "/W3",
+            "test_compatibility.cpp",
+            f"/Fe:{os.path.join(out_dir, 'test_compatibility.exe')}",
+            f"/Fo:{os.path.join(out_dir, 'test_compatibility.obj')}",
+            "/I.", "/I.\\cpp_headers"
+        ]
+        executable = os.path.join(out_dir, 'test_compatibility.exe')
     else:
         compile_cmd = [
             "g++", "-std=c++17", "-O2", "-Wall",
-            "test_compatibility.cpp", "-o", os.path.join(out_dir, 'test_compatibility'),
+            "test_compatibility.cpp", "-o", os.path.join(out_dir, 'test_compatibility.exe' if platform.system() == "Windows" else 'test_compatibility'),
             "-I.", "-I./cpp_headers"
         ]
-        executable = os.path.join(out_dir, 'test_compatibility')
+        executable = os.path.join(out_dir, 'test_compatibility.exe' if platform.system() == "Windows" else 'test_compatibility')
 
     print(f"Compile command: {' '.join(compile_cmd)}")
     compile_result = subprocess.run(compile_cmd, capture_output=True, text=True)

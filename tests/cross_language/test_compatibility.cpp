@@ -141,6 +141,19 @@ bool test_load_python_binary()
 	}
 	std::cout << " Loaded " << keys.size() << " test keys\n";
 
+	// Load the reference hash assignments computed in Python
+	auto python_hashes = load_hashes_from_csv("out/test_data_py_hashes.csv");
+	if (python_hashes.empty())
+	{
+		std::cerr << " Failed to load Python hash results (run export_test_data.py first)\n";
+		return false;
+	}
+	if (python_hashes.size() != keys.size())
+	{
+		std::cerr << " Hash reference size mismatch: expected " << keys.size()
+		          << ", got " << python_hashes.size() << "\n";
+	}
+
 	// Load MPHF from Python binary
 	std::ifstream is("out/test_data_py.mphf", std::ios::binary);
 	if (!is)
@@ -159,37 +172,55 @@ bool test_load_python_binary()
 	std::cout << "Verifying MPHF properties...\n";
 
 	std::set<uint64_t> hash_values;
-	int errors = 0;
+	int range_errors = 0;
+	int mismatch_errors = 0;
+	const int max_report = 10;
 
 	for (uint64_t key : keys)
 	{
+		auto expected_it = python_hashes.find(key);
+		if (expected_it == python_hashes.end())
+		{
+			std::cerr << " Missing Python hash for key " << key << "\n";
+			return false;
+		}
+
 		uint64_t hash_val = bphf.lookup(key);
 
 		// Check range
 		if (hash_val >= keys.size())
 		{
-			std::cerr << " Out of range for key " << key << ": " << hash_val
-			          << " not in [0, " << keys.size() - 1 << "]\n";
-			errors++;
-			if (errors >= 10)
+			if (range_errors < max_report)
 			{
-				std::cerr << "  (stopping after 10 errors)\n";
-				break;
+				std::cerr << " Out of range for key " << key << ": " << hash_val
+				          << " not in [0, " << keys.size() - 1 << "]\n";
 			}
+			++range_errors;
 		}
 		else
 		{
 			hash_values.insert(hash_val);
 		}
+
+		// Ensure the lookup matches the Python assignment
+		if (hash_val != expected_it->second)
+		{
+			if (mismatch_errors < max_report)
+			{
+				std::cerr << " Hash mismatch for key " << key << ": Python="
+				          << expected_it->second << ", C++=" << hash_val << "\n";
+			}
+			++mismatch_errors;
+		}
 	}
 
-	if (errors > 0)
+	if (range_errors > 0)
 	{
-		std::cerr << " Binary compatibility test failed\n";
+		std::cerr << " Binary compatibility test failed due to range errors ("
+		          << range_errors << ")\n";
 		return false;
 	}
 
-	// Check uniqueness
 	if (hash_values.size() != keys.size())
 	{
 		std::cerr << " Hash collision detected!\n";
@@ -198,9 +229,16 @@ bool test_load_python_binary()
 		return false;
 	}
 
+	if (mismatch_errors > 0)
+	{
+		std::cerr << " Hash mismatch detected (" << mismatch_errors
+		          << ") between Python and C++ lookups\n";
+		return false;
+	}
+
 	std::cout << " All " << keys.size() << " keys can be looked up\n";
 	std::cout << " All hash values in valid range [0, " << keys.size() - 1 << "]\n";
-	std::cout << " All hash values are unique (perfect hash)\n";
+	std::cout << " Lookup results match Python assignments exactly\n";
 	std::cout << " Binary compatibility verified!\n";
 	return true;
 }
@@ -251,7 +289,7 @@ bool test_compare_hash_values()
 			matches++;
 			if (samples_shown < 3)
 			{
-				std::cout << "  Match:     key=" << key << " → hash=" << py_hash << "\n";
+				std::cout << "  Match:     key=" << key << " -> hash=" << py_hash << "\n";
 				samples_shown++;
 			}
 		}
@@ -260,7 +298,7 @@ bool test_compare_hash_values()
 			mismatches++;
 			if (samples_shown < max_samples)
 			{
-				std::cout << "  Mismatch:  key=" << key << " → Python=" << py_hash
+				std::cout << "  Mismatch:  key=" << key << " -> Python=" << py_hash
 				          << ", C++=" << cpp_hash << "\n";
 				samples_shown++;
 			}

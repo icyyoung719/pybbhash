@@ -4,8 +4,9 @@ This is a simplified port intended for correctness and clarity rather than speed
 """
 
 from typing import Iterable, Dict, List, Tuple
-from .bitvector import bitvector
-from .hashfunctors import XorshiftHashFunctors, SingleHashFunctor
+
+from pybbhash.bitvector import bitvector
+from pybbhash.hashfunctors import XorshiftHashFunctors, SingleHashFunctor
 import math
 
 hash_pair_t = Tuple[int, int]
@@ -279,3 +280,31 @@ class mphf:
             mph._writeEachLevel = False
 
         return mph
+
+
+def main():
+    import random
+    rng = random.Random(41)
+    keys = rng.sample(range(1, 10_000), 30)
+    sample = keys[:5]
+    h = mphf(n=len(sample), input_range=sample, gamma=1)
+
+    sample_results = {k: h.lookup(k) for k in sample}
+    print("Sample lookups:")
+    for key, idx in sample_results.items():
+        print(f"  {key} -> {idx}")
+    
+    import sys
+    from pathlib import Path
+    path = Path("out")
+    path.mkdir(exist_ok=True)
+    file_path = path / "basic.mphf"
+    h.save(file_path)
+    loaded = mphf.load(file_path)
+
+    assert all(h.lookup(k) == loaded.lookup(k) for k in keys)
+    print(f"Stored {len(keys)} keys, file size {file_path.stat().st_size} bytes")
+
+
+if __name__ == "__main__":
+    main()

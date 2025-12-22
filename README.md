@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/icyyoung719/pybbhash/actions/workflows/ci.yml/badge.svg)](https://github.com/icyyoung719/pybbhash/actions/workflows/ci.yml)
 
 **pybbhash** is a Python implementation of the BBHash (BooPHF) minimal perfect hash function (MPHF) algorithm. It provides an efficient way to create bijective mappings from a set of keys to consecutive integers [0, n-1].
 

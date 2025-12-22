@@ -3,7 +3,8 @@
 This is a simplified port intended for correctness and clarity rather than speed.
 """
 
-from typing import Iterable, Dict, List, Tuple
+from typing import Iterable, Dict, List, Tuple, Optional, Union
+from pathlib import Path
 
 from pybbhash.bitvector import bitvector
 from pybbhash.hashfunctors import XorshiftHashFunctors, SingleHashFunctor
@@ -33,7 +34,7 @@ class mphf:
     def __init__(
         self,
         n: int = 0,
-        input_range: Iterable[int] = None,
+        input_range: Optional[Iterable[int]] = None,
         num_thread: int = 1,
         gamma: float = 2.0,
         writeEach: bool = False,
@@ -192,7 +193,7 @@ class mphf:
         totalsize = totalsizeBitset + len(self._final_hash) * 42 * 8
         return totalsize
 
-    def save(self, fpath: str):
+    def save(self, fpath: Union[str, Path]) -> None:
         """Save mphf to binary file compatible with C++ format."""
         import struct
 
@@ -221,7 +222,7 @@ class mphf:
                 os.write(struct.pack("<Q", value))
 
     @staticmethod
-    def load(fpath: str):
+    def load(fpath: Union[str, Path]) -> "mphf":
         """Load mphf from binary file compatible with C++ format."""
         import struct
 

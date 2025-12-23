@@ -8,7 +8,7 @@ from setuptools import setup
 import os
 
 # Read version from pyproject.toml or use default
-version = "0.2.0"
+version = "0.2.1"
 
 try:
     # Try to read version from __init__.py

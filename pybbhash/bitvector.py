@@ -41,6 +41,14 @@ class bitvector:
         for i in range(self._nchar):
             self._bitArray[i] = 0
 
+    def clearCollisions(self, start: int, size: int, cc: 'bitvector'):
+        assert start & 63 == 0
+        assert size & 63 == 0
+        ids = start // 64
+        for ii in range(size // 64):
+            self._bitArray[ids + ii] &= ~(cc.get64(ii))
+        cc.clear()
+
     def get(self, pos: int) -> int:
         if pos < 0 or pos >= self._size:
             return 0

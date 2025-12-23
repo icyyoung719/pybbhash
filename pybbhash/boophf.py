@@ -71,8 +71,8 @@ class mphf:
             # process level
             self.processLevel(input_range, ii)
             # clear collisions
-            self._levels[ii].bitset.clear()
-            self._levels[ii].bitset.clear()  # no-op replacement for C++ clearCollisions semantics
+            self._levels[ii].bitset.clearCollisions(0, self._levels[ii].hash_domain, self._tempBitset)
+
             offset = self._levels[ii].bitset.build_ranks(offset)
             del self._tempBitset
 

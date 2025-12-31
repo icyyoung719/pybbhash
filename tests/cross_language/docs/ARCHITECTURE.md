@@ -11,7 +11,7 @@
                                   ▼
         ┌─────────────────────────────────────────────────┐
         │        Step 1: Generate Python Test Data        │
-        │         (export_test_data.py)                   │
+        │         (export_py_binary.py)                   │
         └─────────────────────────────────────────────────┘
                                   │
                     ┌─────────────┴─────────────┐
@@ -210,14 +210,14 @@ cpp-bbhash/
 │   ├── Test 1: Load Python MPHF
 │   └── Test 2: Create C++ MPHF
 │
-├── export_test_data.py
+├── export_py_binary.py
 │   └── Generates: test_data_py.{mphf,csv}
 │
 ├── verify_cpp_export.py
 │   └── Loads: test_data_cpp.{mphf,csv}
 │
 └── run_cross_language_tests.py
-    ├── Calls: export_test_data.py
+    ├── Calls: export_py_binary.py
     ├── Compiles: test_min.cpp
     ├── Runs: test_min
     └── Calls: verify_cpp_export.py

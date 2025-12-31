@@ -145,7 +145,7 @@ bool test_load_python_binary()
 	auto python_hashes = load_hashes_from_csv("out/test_data_py_hashes.csv");
 	if (python_hashes.empty())
 	{
-		std::cerr << " Failed to load Python hash results (run export_test_data.py first)\n";
+		std::cerr << " Failed to load Python hash results (run export_py_binary.py first)\n";
 		return false;
 	}
 	if (python_hashes.size() != keys.size())
@@ -159,7 +159,7 @@ bool test_load_python_binary()
 	if (!is)
 	{
 		std::cerr << " Failed to open Python binary file\n";
-		std::cerr << "  Please run: python export_test_data.py\n";
+		std::cerr << "  Please run: python export_py_binary.py\n";
 		return false;
 	}
 

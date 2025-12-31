@@ -19,7 +19,7 @@ python generate_test_keys.py
 
 #### 2. Python 处理
 ```bash
-python export_test_data.py
+python export_py_binary.py
 ```
 - 读取 `test_keys.csv`
 - 构建 Python MPHF（gamma=2.0）

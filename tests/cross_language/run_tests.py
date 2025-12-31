@@ -59,7 +59,7 @@ def main():
 
     # Step 1: Python builds MPHF and exports
     results.append(run_command(
-        [sys.executable, "export_test_data.py"],
+        [sys.executable, "export_py_binary.py"],
         "Step 1: Python build and export"
     ))
 

@@ -18,7 +18,7 @@ These tests ensure that:
   - Verifies hash lookups match expected values
   - Creates C++ MPHF binary files for Python to load
   
-- **`export_test_data.py`**: Python script that:
+- **`export_py_binary.py`**: Python script that:
   - Generates test keys (1000-1999)
   - Builds MPHF using pybbhash
   - Exports binary file (`test_data_py.mphf`)
@@ -56,7 +56,7 @@ If you prefer to run steps manually:
 
 ```bash
 # 1. Generate Python test data
-python export_test_data.py
+python export_py_binary.py
 
 # 2. Compile C++ test
 g++ -std=c++17 -O2 test_min.cpp -o test_min -I.

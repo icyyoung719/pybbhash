@@ -17,7 +17,7 @@ tests/cross_language/
 │   ├── HASH_FUNCTION_FIX.md  # Hash function bug fix details
 │   └── TESTING_PHILOSOPHY.md # Testing approach
 ├── test_compatibility.cpp    # C++ test program
-├── export_test_data.py      # Generate Python MPHF binary
+├── export_py_binary.py      # Generate Python MPHF binary
 ├── verify_cpp_export.py     # Verify C++ MPHF binary in Python
 └── run_tests.py            # Master test orchestrator
 ```

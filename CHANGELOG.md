@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Comprehensive cross-language binary compatibility test harness under `tests/cross_language/` (Python↔C++).
-- Test orchestration scripts: `run_tests.py`, `generate_test_keys.py`, `export_test_data.py`, `verify_cpp_export.py` and `test_compatibility.cpp` (C++ test program).
+- Test orchestration scripts: `run_tests.py`, `generate_test_keys.py`, `export_py_binary.py`, `verify_cpp_export.py` and `test_compatibility.cpp` (C++ test program).
 - `tests/cross_language/out/` artifact directory for generated MPHF binaries and CSVs.
 
 ### Changed

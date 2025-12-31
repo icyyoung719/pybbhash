@@ -13,6 +13,15 @@ import sys
 import os
 import subprocess
 import platform
+import hashlib
+
+def get_file_md5(file_path):
+    """Compute MD5 checksum of a file."""
+    hash_md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
 
 
 def run_command(cmd, description):
@@ -127,6 +136,15 @@ def main():
         [sys.executable, "verify_cpp_export.py"],
         "Step 4: Python loads C++ binary"
     ))
+
+    # Compare if .mphf output files are identical
+    binary_py = os.path.join(out_dir, 'test_data_py.mphf')
+    binary_cpp = os.path.join(out_dir, 'test_data_cpp.mphf')
+    if os.path.exists(binary_py) and os.path.exists(binary_cpp):
+        if get_file_md5(binary_py) == get_file_md5(binary_cpp):
+            print(f"\n[OK] MPHF binary files are identical between Python and C++.")
+        else:
+            print(f"\n[NOTE] MPHF binary files differ between Python and C++ (expected due to implementation differences).")
 
     # Print summary
     print("\n" + "="*60)

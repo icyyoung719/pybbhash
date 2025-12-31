@@ -92,10 +92,7 @@ def main():
         print(f"  Expected {len(test_keys)} unique hashes, got {len(hash_values)}")
         return 1
     
-    print(f"✓ All {len(test_keys)} keys can be looked up")
-    print(f"✓ All hash values in valid range [0, {len(test_keys)-1}]")
-    print(f"✓ All hash values are unique (perfect hash)")
-    print(f"✓ Binary compatibility verified!")
+    print(f"\n[OK] C++ output can be loaded in Python.")
     
     # Optional: Compare with C++ hash values (from out/)
     hash_csv_file = os.path.join('out', 'test_data_cpp_hashes.csv')
